@@ -7,10 +7,13 @@ from torch import save, random
 from torch.nn import CrossEntropyLoss
 from argparse import ArgumentParser
 import matplotlib.pyplot as plt
+import torch
+from utils import distrib
 
 # seeding the random number generator. You can disable the seeding for the improvement model
 random.manual_seed(0)
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def semantic_segmentation(model_type="base"):
     """
@@ -27,6 +30,10 @@ def semantic_segmentation(model_type="base"):
     # an optional export directory
     exp_dir = f"{model_type}_models"
 
+    classcount, rgbmean = distrib(train_dl)
+
+    classcount = 1/classcount
+    classcount = classcount.to(device)
     if model_type == "base":
         # specify netspec_opts
         netspec_opts = {
@@ -52,14 +59,35 @@ def semantic_segmentation(model_type="base"):
         }
 
         model = SemanticSegmentationBase(netspec_opts)
+        model.to(device)
 
-    # elif model_type == "improved":
+    elif model_type == "improved":
 
         # specify netspec_opts
-
+        netspec_opts = {
+            "name": ["conv_1","bn_1","relu_1",'pool_1',"conv_2","bn_2","relu_2","pool_2","conv_3","bn_3","relu_3","pool_3","conv_4","bn_4","relu_4", "conv_5","upsample_4x","skip_6", "sum_6", "skip_10", "upsample_skip_10","sum_10","upsample_2x"],
+            "kernel_size": [3,0,0,2,3,0,0,2,3,0,0,2,3,0,0,1,4,1,0,1,4,0,4],
+            # Fill filter size for relu and sum as well since skip layers and others use them
+            "num_filters": [32,32,32,32,64,64,64,64,128,128,128,128,256,256,256,36,36,36,36,36,36,36,36],
+            "stride": [1,0,0,2,1,0,0,2,1,0,0,2,1,0,0,1,4,1,0,1,2,0,2],
+            "layer_type": ['conv','bn','relu','pool','conv','bn','relu','pool','conv','bn','relu','pool','conv','bn','relu','conv','convt','skip','sum','skip','convt','sum','convt'],
+            "input": [-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,6,(17,16),10,19,(20,18),21],
+            "pad": [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,1]
+        }
         # specify train_opts
+        train_opts = {
+            "lr": 0.1,
+            "weight_decay": 0.001,
+            "batch_size": 24,
+            "momentum": 0.9,
+            "num_epochs": 34,
+            "step_size": 30,
+            "gamma": 0.1,
+            "objective": CrossEntropyLoss(classcount.float())
+        }
 
-        # model = SemanticSegmentationImproved(netspec_opts)
+        model = SemanticSegmentationImproved(netspec_opts)
+        model.to(device)
     else:
         raise ValueError(f"Error: unknown model type {model_type}")
 
@@ -76,7 +104,7 @@ def semantic_segmentation(model_type="base"):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument("--model_type", default="base", type=str, help="Specify model type")
+    parser.add_argument("--model_type", default="improved", type=str, help="Specify model type")
     args, _ = parser.parse_known_args()
 
     semantic_segmentation(**args.__dict__)

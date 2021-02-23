@@ -2,7 +2,9 @@ from torch import optim, save, unique
 from torch.utils.data import DataLoader
 from os import path, mkdir
 import matplotlib.pyplot as plt
+import torch
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def train(model, train_ds, val_ds, train_opts, exp_dir=None):
     """
@@ -112,6 +114,8 @@ def fit(model, data_dl, criterion, optimizer=None):
 
     predictions = []
     for images, annots in data_dl:
+        images = images.to(device)
+        annots = annots.to(device)
         pred = model(images)
         loss = criterion(pred, annots)
         e_loss += loss.item()
@@ -143,6 +147,7 @@ def accuracy_metrics(predictions, labels):
     iu_score: (float), the intersection over union score as described in the handout
 
     """
+    labels = labels.to(device)
     per_class_acc = 0
     iu_score = 0
     pixel_acc = predictions.eq(labels).float().mean().item()

@@ -1,6 +1,6 @@
 from torch.utils.data import TensorDataset
 from torch import load
-
+import torch
 
 def create_dataset(data_path):
     """
@@ -20,6 +20,8 @@ def create_dataset(data_path):
     sets_tr = data['sets_tr']
     anno_tr = data['anno_tr']
 
+    # per_pixel_mean = torch.mean(data_tr, 0)
+    # data_tr = data_tr - per_pixel_mean
     train_ds = TensorDataset(data_tr[sets_tr == 1], anno_tr[sets_tr == 1])
     val_ds = TensorDataset(data_tr[sets_tr == 2], anno_tr[sets_tr == 2])
 

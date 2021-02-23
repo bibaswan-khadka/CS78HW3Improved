@@ -5,3 +5,4 @@ train, val = create_dataset('semantic_segmentation_dataset.pt')
 
 classcount, rgbmean = distrib(val)
 
+print(rgbmean)
