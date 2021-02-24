@@ -74,7 +74,7 @@ def evaluate(data, model, batch_size):
 if __name__ == '__main__':
     # change model_type and batch_size to suit your needs
     parser = ArgumentParser()
-    parser.add_argument("--model_type", default="base", type=str, help="Specify model type")
+    parser.add_argument("--model_type", default="improved", type=str, help="Specify model type")
     parser.add_argument("--batch_size", default=100, type=int, help="specify the batch size")
     args, _ = parser.parse_known_args()
 

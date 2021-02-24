@@ -32,7 +32,7 @@ def train(model, train_ds, val_ds, train_opts, exp_dir=None):
     # We will use the Stochastic Gradient Descent optimizer. You can try
     # different optimizers for the improvement task
     optimizer = optim.SGD(
-        model.parameters(),
+        filter(lambda p: p.requires_grad,model.parameters()),
         lr=train_opts["lr"],
         momentum=train_opts["momentum"],
         weight_decay=train_opts["weight_decay"]
