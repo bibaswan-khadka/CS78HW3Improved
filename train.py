@@ -38,9 +38,9 @@ def train(model, train_ds, val_ds, train_opts, exp_dir=None):
         weight_decay=train_opts["weight_decay"]
     )
 
-    lr_scheduler = optim.lr_scheduler.StepLR(
+    lr_scheduler = optim.lr_scheduler.MultiStepLR(
         optimizer=optimizer,
-        step_size=train_opts["step_size"],
+        milestones=train_opts["step_size"],
         gamma=train_opts["gamma"]
     )
 

@@ -68,7 +68,7 @@ def semantic_segmentation(model_type="base"):
             "name": ["conv_1","bn_1","relu_1",'pool_1',"conv_2","bn_2","relu_2","pool_2","conv_3","bn_3","relu_3","pool_3","conv_4","bn_4","relu_4", "conv_5","upsample_4x","skip_6", "sum_6", "skip_10", "upsample_skip_10","sum_10","upsample_2x"],
             "kernel_size": [3,0,0,2,3,0,0,2,3,0,0,2,3,0,0,1,4,1,0,1,4,0,4],
             # Fill filter size for relu and sum as well since skip layers and others use them
-            "num_filters": [32,32,32,32,64,64,64,64,512,512,512,512,580,580,580,36,36,36,36,36,36,36,36],
+            "num_filters": [96,96,96,96,192,192,192,192,512,512,512,512,580,580,580,36,36,36,36,36,36,36,36],
             "stride": [1,0,0,2,1,0,0,2,1,0,0,2,1,0,0,1,4,1,0,1,2,0,2],
             "layer_type": ['conv','bn','relu','pool','conv','bn','relu','pool','conv','bn','relu','pool','conv','bn','relu','conv','convt','skip','sum','skip','convt','sum','convt'],
             "input": [-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,6,(17,16),10,19,(20,18),21],
@@ -81,14 +81,14 @@ def semantic_segmentation(model_type="base"):
             "batch_size": 24,
             "momentum": 0.9,
             "num_epochs": 34,
-            "step_size": 10,
+            "step_size": [10,11],
             "gamma": 0.1,
             "objective": CrossEntropyLoss(classcount.float())
         }
 
         model = SemanticSegmentationImproved(netspec_opts)
         model.to(device)
-        CNN_model_params = torch.load('improved_state_dict_CNN.pt')
+        CNN_model_params = torch.load('improved_state_dict_CNN(1).pt')
         model_params = model.state_dict().copy()
         print(model.state_dict().keys())
         #for p in model.named_parameters():
