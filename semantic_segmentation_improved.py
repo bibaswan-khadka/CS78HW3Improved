@@ -49,6 +49,9 @@ class SemanticSegmentationImproved(nn.Module):
                 self.net[n] = nn.Conv2d(num_filters[i],n_f,k_s,s,p)
             if l_t == "sum":
                 self.net[n] = Sum()
+            if l_t == 'drop':
+                self.net[n] = nn.Dropout(p=0.2)
+            
 
 
     def forward(self, x):
@@ -83,7 +86,8 @@ class SemanticSegmentationImproved(nn.Module):
         out_conv_4 = self.net['conv_4'](out_pool_3)
         out_bn_4 = self.net['bn_4'](out_conv_4)
         out_relu_4 = self.net['relu_4'](out_bn_4)
-        out_conv5 = self.net['conv_5'](out_relu_4)
+        out_drop_1 = self.net['drop_1'](out_relu_4)
+        out_conv5 = self.net['conv_5'](out_drop_1)
         out_upsample_4x = self.net['upsample_4x'](out_conv5)
         out_skip_6 = self.net['skip_6'](out_relu_2)
         out_betterfeat = self.net['sum_6'](out_skip_6,out_upsample_4x)

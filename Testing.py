@@ -6,7 +6,8 @@ train, val = create_dataset('semantic_segmentation_dataset.pt')
 
 classcount, rgbmean = distrib(val)
 
-print(load('improved_state_dict_CNN.pt'))
+print(classcount)
+#print(load('improved_state_dict_CNN.pt'))
 #print(model_state['state'])
 #model = SemanticSegmentationImproved(model_state['specs'])
 #model.load_state_dict(load(model_state['state']))

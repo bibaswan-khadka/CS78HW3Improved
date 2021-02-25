@@ -65,14 +65,14 @@ def semantic_segmentation(model_type="base"):
 
         # specify netspec_opts
         netspec_opts = {
-            "name": ["conv_1","bn_1","relu_1",'pool_1',"conv_2","bn_2","relu_2","pool_2","conv_3","bn_3","relu_3","pool_3","conv_4","bn_4","relu_4", "conv_5","upsample_4x","skip_6", "sum_6", "skip_10", "upsample_skip_10","sum_10","upsample_2x"],
-            "kernel_size": [3,0,0,2,3,0,0,2,3,0,0,2,3,0,0,1,4,1,0,1,4,0,4],
+            "name": ["conv_1","bn_1","relu_1",'pool_1',"conv_2","bn_2","relu_2","pool_2","conv_3","bn_3","relu_3","pool_3","conv_4","bn_4","relu_4", "drop_1","conv_5","upsample_4x","skip_6", "sum_6", "skip_10", "upsample_skip_10","sum_10","upsample_2x"],
+            "kernel_size": [3,0,0,2,3,0,0,2,3,0,0,2,3,0,0,0,1,4,1,0,1,4,0,4],
             # Fill filter size for relu and sum as well since skip layers and others use them
-            "num_filters": [96,96,96,96,192,192,192,192,512,512,512,512,580,580,580,36,36,36,36,36,36,36,36],
-            "stride": [1,0,0,2,1,0,0,2,1,0,0,2,1,0,0,1,4,1,0,1,2,0,2],
-            "layer_type": ['conv','bn','relu','pool','conv','bn','relu','pool','conv','bn','relu','pool','conv','bn','relu','conv','convt','skip','sum','skip','convt','sum','convt'],
-            "input": [-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,6,(17,16),10,19,(20,18),21],
-            "pad": [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,1]
+            "num_filters": [128,128,128,128,256,256,256,256,512,512,512,512,1024,1024,1024,1024,36,36,36,36,36,36,36,36],
+            "stride": [1,0,0,2,1,0,0,2,1,0,0,2,1,0,0,0,1,4,1,0,1,2,0,2],
+            "layer_type": ['conv','bn','relu','pool','conv','bn','relu','pool','conv','bn','relu','pool','conv','bn','relu','drop','conv','convt','skip','sum','skip','convt','sum','convt'],
+            "input": [-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,6,(18,17),10,20,(21,19),22],
+            "pad": [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1]
         }
         # specify train_opts
         train_opts = {
@@ -80,25 +80,25 @@ def semantic_segmentation(model_type="base"):
             "weight_decay": 0.001,
             "batch_size": 24,
             "momentum": 0.9,
-            "num_epochs": 34,
-            "step_size": [10,11],
+            "num_epochs": 12,
+            "step_size": [7,10],
             "gamma": 0.1,
             "objective": CrossEntropyLoss(classcount.float())
         }
 
         model = SemanticSegmentationImproved(netspec_opts)
         model.to(device)
-        CNN_model_params = torch.load('improved_state_dict_CNN(1).pt')
+        CNN_model_params = torch.load('improved_state_dict_CNN(128,256,512).pt')
         model_params = model.state_dict().copy()
-        print(model.state_dict().keys())
+        #print(model.state_dict().keys())
         #for p in model.named_parameters():
           #print(p)
-        i = 0
-        freezelayers = {0,1,2,3,4,5}
-        for p in model.named_parameters():
-          if i in freezelayers:
-            print(p)
-          i = i+1
+        #i = 0
+        #freezelayers = {0,1,2,3,4,5}
+        #for p in model.named_parameters():
+          #if i in freezelayers:
+            #print(p)
+          #i = i+1
         model_params['net.conv_1.weight'] = CNN_model_params['conv0.weight']
         model_params['net.conv_1.bias'] = CNN_model_params['conv0.bias']
         model_params['net.bn_1.weight'] = CNN_model_params['bn1.weight']
